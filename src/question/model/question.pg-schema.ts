@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Question {
+export class QuestionPG {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column()
@@ -11,7 +11,12 @@ export class Question {
   @Column()
   correctAnswer: string;
 
-  constructor(id?: string, questionText?: string, options?: string[], correctAnswer?: string) {
+  constructor(
+    id?: string,
+    questionText?: string,
+    options?: string[],
+    correctAnswer?: string,
+  ) {
     this.id = id;
     this.questionText = questionText;
     this.options = options;

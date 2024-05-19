@@ -1,48 +1,49 @@
-import { Injectable } from '@nestjs/common';
-import { Question } from '../model/question';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Question } from '../model/question.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class QuestionsRepository {
-  private questionsCollection: Question[] = [];
-
   constructor(
-    @InjectRepository(Question)
-    private questionsRepository: Repository<Question>,
-  ) {
-  }
+    @InjectModel(Question.name) private questionModel: Model<Question>,
+  ) { }
 
   async findAll(): Promise<Question[]> {
-    return this.questionsRepository.find();
+    return await this.questionModel.find().lean().exec();
   }
 
-  async createQuestion(question: Question): Promise<Question> {
-    return this.questionsRepository.save(question);
+  async createQuestion(createQuestionDto: Question): Promise<Question> {
+    const createdQuestion = new this.questionModel(createQuestionDto);
+    return createdQuestion.save();
   }
 
   async getQuestionById(id: string): Promise<Question | null> {
-    return this.questionsRepository.findOne(id as any);
+    const question = await this.questionModel.findById(id).exec();
+    if (!question) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
+    return question;
   }
 
-  async updateQuestion(id: string, update: Question): Promise<void> {
-    try {
-      console.log('updateQuestion', id, update);
-      await this.questionsRepository.upsert(update, [id]);
-    } catch (error) {
-      console.error('Erro ao atualizar a questão:', error);
-      throw new Error('Erro ao atualizar a questão');
+  async updateQuestion(
+    id: string,
+    update: Partial<Question>,
+  ): Promise<Question> {
+    const existingQuestion = await this.questionModel
+      .findByIdAndUpdate(id, update, { new: true })
+      .exec();
+    if (!existingQuestion) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
     }
-
+    return existingQuestion;
   }
 
   async deleteQuestion(id: string): Promise<void> {
-    await this.questionsRepository.delete(id);
+    await this.questionModel.findByIdAndDelete(id).exec();
   }
 
   async deleteAll(): Promise<void> {
-    await this.questionsRepository.clear();
+    await this.questionModel.deleteMany({});
   }
-
-
 }

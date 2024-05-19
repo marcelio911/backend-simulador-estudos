@@ -1,6 +1,23 @@
-import { Controller, Get, Post, Body, Param, Delete, HttpCode, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  UploadedFile,
+  Delete,
+  HttpCode,
+  Put,
+  UseInterceptors,
+  Get,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { QuestionService } from './question.service';
-import { Question } from './model/question';
+import { diskStorage, Multer } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+import * as fs from 'fs';
+
+import { Question } from './model/question.schema';
 
 @Controller('questions')
 export class QuestionController {
@@ -8,7 +25,7 @@ export class QuestionController {
 
   @Get()
   findAll(): Promise<Question[]> {
-    return this.questionService.findAll();
+    return this.questionService.getAllRandomQuestions();
   }
 
   @Get(':id')
@@ -40,7 +57,36 @@ export class QuestionController {
   }
 
   @Post('import')
-  async importQuestions(@Body('filePath') filePath: string): Promise<void> {
-    await this.questionService.importQuestions(filePath);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './tmp', // Diretório temporário para salvar o arquivo
+        filename: (req, file, cb) => {
+          const filename: string =
+            path.parse(file.originalname).name.replace(/\s+/g, '_') +
+            '-' +
+            uuidv4();
+          const extension: string = path.parse(file.originalname).ext;
+          cb(null, `${filename}${extension}`);
+        },
+      }),
+    }),
+  )
+  // curl -X POST -F "file=@/home/mcl/Downloads/SIMULADO+IFS+-+COM+GABARITO.pdf" -F "concursoId=6649a42f04ffa5b30aca922d" http://localhost:3000/questions/import
+  async importQuestions(
+    @UploadedFile() file: Multer.File,
+    @Body() body: { concursoId: string },
+  ): Promise<void> {
+    const filePath = file.path;
+    try {
+      await this.questionService.importQuestions(filePath, body.concursoId);
+    } finally {
+      // Remove o arquivo temporário após a importação
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error(`Failed to delete temporary file: ${filePath}`, err);
+        }
+      });
+    }
   }
 }
