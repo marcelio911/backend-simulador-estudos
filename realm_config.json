@@ -1,0 +1,7 @@
+{
+    "app_id": "simuladorstudos-0-jaejnot",
+    "config_version": 20210101,
+    "name": "SimuladorStudos-0",
+    "provider_region": "aws-us-east-1",
+    "deployment_model": "LOCAL"
+}
