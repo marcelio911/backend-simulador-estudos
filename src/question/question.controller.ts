@@ -23,9 +23,9 @@ import { Question } from './model/question.schema';
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) { }
 
-  @Get()
-  findAll(): Promise<Question[]> {
-    return this.questionService.getAllRandomQuestions();
+  @Get('simulacao/:id')
+  findAll(@Param('id') simulacaoId: string): Promise<Question[]> {
+    return this.questionService.getAllRandomQuestions({ simulacaoId });
   }
 
   @Get(':id')
@@ -51,9 +51,9 @@ export class QuestionController {
   }
 
   // curl -X DELETE http://localhost:3000/questions
-  @Delete()
-  deleteAll(): Promise<void> {
-    return this.questionService.deleteAll();
+  @Delete('/simulacao/:simulacaoId')
+  deleteAll(@Param('simulacaoId') simulacaoId: string): Promise<string> {
+    return this.questionService.deleteAllBySimulacaoId(simulacaoId);
   }
 
   @Post('import')
@@ -75,11 +75,14 @@ export class QuestionController {
   // curl -X POST -F "file=@/home/mcl/Downloads/SIMULADO+IFS+-+COM+GABARITO.pdf" -F "concursoId=6649a42f04ffa5b30aca922d" http://localhost:3000/questions/import
   async importQuestions(
     @UploadedFile() file: Multer.File,
-    @Body() body: { concursoId: string },
+    @Body() body: { simulacaoId: string },
   ): Promise<void> {
     const filePath = file.path;
     try {
-      await this.questionService.importQuestions(filePath, body.concursoId);
+      await this.questionService.importQuestions(filePath, body.simulacaoId);
+    } catch (error) {
+      console.error('Error importing questions:', error);
+      throw error;
     } finally {
       // Remove o arquivo temporário após a importação
       fs.unlink(filePath, (err) => {

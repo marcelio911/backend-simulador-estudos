@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema()
 export class Question extends Document {
@@ -12,8 +12,12 @@ export class Question extends Document {
   @Prop({ required: true })
   correctAnswer: string;
 
-  @Prop({ required: true })
-  concursoId: string;
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Simulacao',
+    required: true,
+  })
+  simulacaoId: string;
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);

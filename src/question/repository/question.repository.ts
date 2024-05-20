@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Question } from '../model/question.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
@@ -11,6 +11,21 @@ export class QuestionsRepository {
 
   async findAll(): Promise<Question[]> {
     return await this.questionModel.find().lean().exec();
+  }
+
+  async findBySimulacaoId(simulacaoId: string): Promise<Question[]> {
+    try {
+      const simulacaoObjectId = new Types.ObjectId(simulacaoId);
+      return await this.questionModel
+        .find({
+          simulacaoId: simulacaoObjectId,
+        })
+        .lean()
+        .exec();
+    } catch (error) {
+      console.error('Error in findBySimulacaoId:', error);
+      throw error;
+    }
   }
 
   async createQuestion(createQuestionDto: Question): Promise<Question> {
@@ -43,7 +58,15 @@ export class QuestionsRepository {
     await this.questionModel.findByIdAndDelete(id).exec();
   }
 
-  async deleteAll(): Promise<void> {
-    await this.questionModel.deleteMany({});
+  async deleteAllBySimulacaoId({ simulacaoId }): Promise<string> {
+    try {
+      await this.questionModel.deleteMany({
+        simulacaoId: new Types.ObjectId(simulacaoId),
+      });
+      return `Documentos da simulacaoId: ${simulacaoId} excluídos com sucesso!`;
+    } catch (error) {
+      console.error('Erro ao excluir documentos:', error);
+      // Lide com o erro conforme necessário
+    }
   }
 }

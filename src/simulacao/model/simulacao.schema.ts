@@ -17,6 +17,9 @@ export class Simulacao extends Document {
   questionIds: string[];
 
   @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
   startTime: Date;
 
   @Prop()
