@@ -15,9 +15,29 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({
       isGlobal: true, // Torna as variáveis de ambiente acessíveis globalmente
     }),
+    // MongooseModule.forRoot(
+    //   'mongodb://myuser:mypassword@localhost:27017/nest',
+    //   {},
+    // ),
     MongooseModule.forRoot(
-      'mongodb://myuser:mypassword@localhost:27017/nest',
-      {},
+      `mongodb+srv://${
+        process.env.USER_DB
+          ? encodeURIComponent(process.env.USER_DB as string) + ':'
+          : ''
+      }${
+        process.env.PASS_DB
+          ? encodeURIComponent(process.env.PASS_DB as string) + '@'
+          : ''
+      }${process.env.HOST_DB}`,
+      {
+        connectionFactory: (connection) => {
+          connection.on('connected', () => {
+            console.log('is connected');
+          });
+          connection._events.connected();
+          return connection;
+        },
+      },
     ),
     // TypeOrmModule.forRoot({
     //   type: 'postgres',
@@ -39,4 +59,4 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
