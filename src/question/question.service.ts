@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as pdfParse from 'pdf-parse';
 @Injectable()
 export class QuestionService {
-  constructor(private questionsRepository: QuestionsRepository) {}
+  constructor(private questionsRepository: QuestionsRepository) { }
 
   async createQuestion(questionData: Question): Promise<void> {
     await this.questionsRepository.createQuestion(questionData);
@@ -62,8 +62,7 @@ export class QuestionService {
     pdfFilePath: string,
     simulacaoId: string,
   ): Promise<void> {
-    console.log('pdfFilePath::: ', pdfFilePath);
-    console.log('simulacaoId::: ', simulacaoId);
+    await this.deleteAllBySimulacaoId(simulacaoId);
 
     const dataBuffer = fs.readFileSync(pdfFilePath);
     const data = await pdfParse(dataBuffer);
