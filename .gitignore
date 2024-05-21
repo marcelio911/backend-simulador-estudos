@@ -2,6 +2,7 @@
 /dist
 /public
 /functions
+/build
 /node_modules
 
 # Logs

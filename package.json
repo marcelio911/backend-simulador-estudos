@@ -1,5 +1,5 @@
 {
-  "name": "microservicos",
+  "name": "backend-simulator-microservices",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -13,17 +13,26 @@
     "firebase:dev": "yarn pre-start && nodemon -w *.ts --exec npm run firebase:serve",
     "firebase:deploy": "yarn pre-start && webpack --mode=production && firebase deploy --only functions",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "pre-start": "yarn build && export ENVFILE=.env && \\cp functions_config/* dist/ && \\cp .env dist/ && cd dist/ && pnpm install && rm -f pnpm-lock.yaml",
+    "pre-start": "yarn build && export ENVFILE=.env && \\cp functions_config/*.* functions/ && \\cp .env functions/ && cd functions/ && pnpm install && rm -f pnpm-lock.yaml",
+    "mongoatlas:deploy": "yarn pre-start && cd functions/ && appservices push",
     "start": "yarn pre-start && nest start",
     "start:dev": "yarn pre-start && nest start --watch",
     "start:debug": "yarn pre-start && nest start --debug --watch",
-    "start:prod": "yarn pre-start && node dist/main",
+    "start:prod": "yarn pre-start && node functions/main",
+    "google:cloud:run": "pnpm install && pnpm run build && node functions/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "bin": "./functions/main.js",
+  "pkg": {
+    "scripts": "./functions/main.js",
+    "assets": [
+      ".env"
+    ]
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

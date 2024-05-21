@@ -9,28 +9,36 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 const expressServer = express();
+const config = process.env;
 
-const bootstrap = async (expressInstance): Promise<void> => {
-  const app = await NestFactory.create(
-    AppModule,
-    new ExpressAdapter(expressInstance),
-  );
+const bootstrap = async (expressInstance?): Promise<void> => {
+  const config = process.env;
+
+  console.log('config', config.ENV);
+
+  const app =
+    config.ENV === 'development'
+      ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
+      : await NestFactory.create(AppModule);
   // BEGIN SWAGGER CONFIG ---------------------------------------
   const packageFile = resolve(__dirname, '../package.json');
   const pkg = JSON.parse(readFileSync(packageFile).toString());
-  const config = new DocumentBuilder()
+  const documentBuilder = new DocumentBuilder()
     .setTitle(`${pkg.name} exemplos de uso NestJS com Firebase Functions`)
     .setDescription(pkg.description)
     .setVersion('1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, documentBuilder);
   SwaggerModule.setup('/swagger', app, document);
   //END SWAGGER CONFIG ------------------------------------
 
   app.enableCors();
-  // await app.listen(3000);
-
-  app.init();
+  if (config.ENV === 'development') {
+    console.log('app.init');
+    app.init();
+    return;
+  }
+  await app.listen(3000);
 };
 
 export const simulator = functions.https.onRequest(
@@ -39,3 +47,7 @@ export const simulator = functions.https.onRequest(
     expressServer(request, response);
   },
 );
+
+if (config.ENV !== 'firebase') {
+  bootstrap();
+}

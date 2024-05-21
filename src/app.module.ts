@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { QuestionModule } from './question/question.module';
@@ -17,33 +17,22 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true, // Torna as variáveis de ambiente acessíveis globalmente
       // load: [configuration],
     }),
-    // MongooseModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     uri: encodeURIComponent(configService.get<string>('MONGO_URI')),
-    //   }),
-    //   inject: [ConfigService],
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGO_URI'),
+      }),
+      inject: [ConfigService],
+    }),
+    // MongooseModule.forRoot(`${process.env.MONGO_URI}`, {
+    //   connectionFactory: (connection) => {
+    //     connection.on('connected', () => {
+    //       console.log('is connected ', process.env.MONGO_URI);
+    //     });
+    //     connection._events.connected();
+    //     return connection;
+    //   },
     // }),
-    MongooseModule.forRoot(
-      `mongodb+srv://${
-        process.env.USER_DB
-          ? encodeURIComponent(process.env.USER_DB as string) + ':'
-          : ''
-      }${
-        process.env.PASS_DB
-          ? encodeURIComponent(process.env.PASS_DB as string) + '@'
-          : ''
-      }${process.env.HOST_DB}/${process.env.NAME_DB}?retryWrites=true&w=majority`,
-      {
-        connectionFactory: (connection) => {
-          connection.on('connected', () => {
-            console.log('is connected');
-          });
-          connection._events.connected();
-          return connection;
-        },
-      },
-    ),
     QuestionModule,
     ConcursoModule,
     SimulacaoModule,
@@ -54,4 +43,4 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
