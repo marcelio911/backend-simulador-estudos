@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 export class QuestionsRepository {
   constructor(
     @InjectModel(Question.name) private questionModel: Model<Question>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Question[]> {
     return await this.questionModel.find().lean().exec();
@@ -31,6 +31,10 @@ export class QuestionsRepository {
   async createQuestion(createQuestionDto: Question): Promise<Question> {
     const createdQuestion = new this.questionModel(createQuestionDto);
     return createdQuestion.save();
+  }
+
+  async createAllQuestion(createQuestionDto: Question[]): Promise<Question[]> {
+    return await this.questionModel.create(createQuestionDto);
   }
 
   async getQuestionById(id: string): Promise<Question | null> {

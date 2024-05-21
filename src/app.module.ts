@@ -9,16 +9,21 @@ import { EstatisticaModule } from './estatistica/estatistica.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+// import configuration from './config/configuration';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Torna as variáveis de ambiente acessíveis globalmente
+      // load: [configuration],
     }),
-    // MongooseModule.forRoot(
-    //   'mongodb://myuser:mypassword@localhost:27017/nest',
-    //   {},
-    // ),
+    // MongooseModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     uri: encodeURIComponent(configService.get<string>('MONGO_URI')),
+    //   }),
+    //   inject: [ConfigService],
+    // }),
     MongooseModule.forRoot(
       `mongodb+srv://${
         process.env.USER_DB
@@ -28,7 +33,7 @@ import { AuthModule } from './auth/auth.module';
         process.env.PASS_DB
           ? encodeURIComponent(process.env.PASS_DB as string) + '@'
           : ''
-      }${process.env.HOST_DB}`,
+      }${process.env.HOST_DB}/${process.env.NAME_DB}?retryWrites=true&w=majority`,
       {
         connectionFactory: (connection) => {
           connection.on('connected', () => {
@@ -39,16 +44,6 @@ import { AuthModule } from './auth/auth.module';
         },
       },
     ),
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: process.env.DB_HOST,
-    //   port: +process.env.DB_PORT,
-    //   username: process.env.DB_USER,
-    //   password: process.env.DB_PASSWORD,
-    //   database: process.env.DB_NAME,
-    //   autoLoadEntities: true,
-    //   synchronize: true,
-    // }),
     QuestionModule,
     ConcursoModule,
     SimulacaoModule,

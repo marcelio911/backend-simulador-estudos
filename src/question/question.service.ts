@@ -11,6 +11,10 @@ export class QuestionService {
     await this.questionsRepository.createQuestion(questionData);
   }
 
+  async createAllQuestion(questionsData: Question[]): Promise<void> {
+    await this.questionsRepository.createAllQuestion(questionsData);
+  }
+
   async getQuestionById(id: string): Promise<Question | null> {
     return this.questionsRepository.getQuestionById(id);
   }
@@ -112,12 +116,13 @@ export class QuestionService {
       questions.push(currentQuestion);
     }
     console.log('questions::: ', questions.length);
-    for (const question of questions) {
-      if (!question.correctAnswer) {
-        console.log('without correct answer:', question);
-      }
-      await this.createQuestion(question);
-    }
+    // for (const question of questions) {
+    //   if (!question.correctAnswer) {
+    //     console.log('without correct answer:', question);
+    //   }
+    //   await this.createQuestion(question);
+    // }
+    await this.createAllQuestion(questions);
     const incorrectAnswers = questions.filter(
       (question) => !question.correctAnswer,
     );

@@ -10,8 +10,7 @@ export class QuestionsRepository {
   constructor(
     @InjectRepository(Question)
     private questionsRepository: Repository<Question>,
-  ) {
-  }
+  ) {}
 
   async findAll(): Promise<Question[]> {
     return this.questionsRepository.find();
@@ -33,7 +32,6 @@ export class QuestionsRepository {
       console.error('Erro ao atualizar a questão:', error);
       throw new Error('Erro ao atualizar a questão');
     }
-
   }
 
   async deleteQuestion(id: string): Promise<void> {
@@ -43,6 +41,4 @@ export class QuestionsRepository {
   async deleteAll(): Promise<void> {
     await this.questionsRepository.clear();
   }
-
-
 }
