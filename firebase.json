@@ -2,7 +2,7 @@
   "functions": [
     {
       "runtime": "nodejs18",
-      "source": "functions",
+      "source": "dist",
       "codebase": "default",
       "ignore": [
         "node_modules",
