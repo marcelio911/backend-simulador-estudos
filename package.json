@@ -13,7 +13,7 @@
     "firebase:dev": "yarn pre-start && nodemon -w *.ts --exec npm run firebase:serve",
     "firebase:deploy": "yarn pre-start && webpack --mode=production && firebase deploy --only functions",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "pre-start": "yarn build && export ENVFILE=.env && \\cp functions_config/package.json dist/ && \\cp .env dist/ && cd dist/ && pnpm install",
+    "pre-start": "yarn build && export ENVFILE=.env && \\cp functions_config/* dist/ && \\cp .env dist/ && cd dist/ && pnpm install && rm -f pnpm-lock.yaml",
     "start": "yarn pre-start && nest start",
     "start:dev": "yarn pre-start && nest start --watch",
     "start:debug": "yarn pre-start && nest start --debug --watch",
@@ -54,12 +54,13 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@google-cloud/functions-framework": "^3.4.0",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
+    "@nestjs/swagger": "7.3.0",
     "@nestjs/testing": "*",
     "@nestjs/typeorm": "^10.0.2",
     "@nestjs/websockets": "*",
-    "@nestjs/swagger": "7.3.0",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
