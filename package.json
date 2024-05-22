@@ -7,13 +7,14 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "firebase:build": "yarn pre-start && webpack  --mode=development",
-    "firebase:serve": "yarn pre-start && webpack --mode=development && firebase serve --only functions",
-    "firebase:emulator": "yarn pre-start && webpack --mode=development && firebase emulators:start --only functions",
-    "firebase:dev": "yarn pre-start && nodemon -w *.ts --exec npm run firebase:serve",
-    "firebase:deploy": "yarn pre-start && webpack --mode=production && firebase deploy --only functions",
+    "firebase:build": "yarn pre-firebase && webpack  --mode=development",
+    "firebase:serve": "yarn pre-firebase && webpack --mode=development && firebase serve --only functions",
+    "firebase:emulator": "yarn pre-firebase && webpack --mode=development && firebase emulators:start --only functions",
+    "firebase:dev": "yarn pre-firebase && nodemon -w *.ts --exec npm run firebase:serve",
+    "firebase:deploy": "yarn pre-firebase && webpack --mode=production && firebase deploy --only functions",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "pre-start": "yarn build && export ENVFILE=.env && \\cp functions_config/*.* functions/ && \\cp .env functions/ && cd functions/ && pnpm install && rm -f pnpm-lock.yaml",
+    "pre-firebase": "yarn build && export ENVFILE=.env && && \\cp -a functions_config/. functions/ && cd functions/ && pnpm install && rm -f pnpm-lock.yaml",
+    "pre-start": "export ENVFILE=.env && \\cp -a functions_config/. functions/ && cd functions/ && rm -f pnpm-lock.yaml",
     "mongoatlas:deploy": "yarn pre-start && cd functions/ && appservices push",
     "start": "yarn pre-start && nest start",
     "start:dev": "yarn pre-start && nest start --watch",
@@ -25,13 +26,16 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "build:linux": "./build-linux.sh"
   },
   "bin": "./functions/main.js",
   "pkg": {
     "scripts": "./functions/main.js",
     "assets": [
-      ".env"
+      ".env",
+      "node_modules/.pnpm/pdf-parse@1.1.1/**",
+      "node_modules/.pnpm/mongoose@8.4.0/**"
     ]
   },
   "dependencies": {

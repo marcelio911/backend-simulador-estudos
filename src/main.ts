@@ -15,11 +15,15 @@ const bootstrap = async (expressInstance?): Promise<void> => {
   const config = process.env;
 
   console.log('config', config.ENV);
-
+  const httpsOptions = {
+    key: readFileSync('./src/cert/key.pem'),
+    cert: readFileSync('./src/cert/cert.pem'),
+  };
   const app =
-    config.ENV === 'development'
+    config.ENV === 'firebase'
       ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
-      : await NestFactory.create(AppModule);
+      : await NestFactory.create(AppModule, { httpsOptions } as any);
+  app.enableCors();
   // BEGIN SWAGGER CONFIG ---------------------------------------
   const packageFile = resolve(__dirname, '../package.json');
   const pkg = JSON.parse(readFileSync(packageFile).toString());
@@ -33,7 +37,7 @@ const bootstrap = async (expressInstance?): Promise<void> => {
   //END SWAGGER CONFIG ------------------------------------
 
   app.enableCors();
-  if (config.ENV === 'development') {
+  if (config.ENV === 'firebase') {
     console.log('app.init');
     app.init();
     return;
