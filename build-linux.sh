@@ -2,8 +2,6 @@
 
 pkg --compress GZip -t node18-linux-x64 --out-path build .
 
-./build/backend-simulator-microservices
-
 #  The  --compress  flag is used to compress the package. The  -t  flag is used to specify the target platform. The  --out-path  flag is used to specify the output directory.
 #  The  .  at the end of the command is used to specify the current directory as the source directory.
 #  The  pkg  command will create a new directory called  build  in the current directory and place the packaged application in it.

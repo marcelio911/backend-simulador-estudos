@@ -73,14 +73,15 @@ export class QuestionService {
 
     const lines = data.text
       .split('\n')
-      .map((line) => line.trim())
+      // .map((line) => line.trim())
       .filter((line) => line);
     const questions = [];
     let currentQuestion = null;
     let capturingQuestionText = false;
 
     for (const line of lines) {
-      if (line.match(/^\d+\)/)) {
+      const $re = new RegExp('^\\d{1,2}[\\).]?\\s*.+$');
+      if (line.match($re)) {
         if (currentQuestion) {
           questions.push(currentQuestion);
         }
