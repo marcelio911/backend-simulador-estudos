@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as pdfParse from 'pdf-parse';
 @Injectable()
 export class QuestionService {
-  constructor(private questionsRepository: QuestionsRepository) { }
+  constructor(private questionsRepository: QuestionsRepository) {}
 
   async createQuestion(questionData: Question): Promise<void> {
     await this.questionsRepository.createQuestion(questionData);
@@ -73,7 +73,7 @@ export class QuestionService {
 
     const lines = data.text
       .split('\n')
-      // .map((line) => line.trim())
+      .map((line) => line.trim())
       .filter((line) => line);
     const questions = [];
     let currentQuestion = null;
