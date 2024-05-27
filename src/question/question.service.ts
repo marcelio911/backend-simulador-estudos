@@ -8,7 +8,7 @@ import { QuestionDto } from './model/question.dto';
 
 @Injectable()
 export class QuestionService {
-  constructor(private questionsRepository: QuestionsRepository) { }
+  constructor(private questionsRepository: QuestionsRepository) {}
 
   async explain(data: any): Promise<string> {
     const { prompt } = data;
@@ -116,6 +116,12 @@ export class QuestionService {
     return this.questionsRepository.deleteAllBySimulacaoId({ simulacaoId });
   }
 
+  async melhorarFormatacao(text: string): Promise<string> {
+    const regex = /([a-e]\))/g;
+    const formatado = text.replace(/\*\*/g, ' **').replace(regex, '\n$1');
+
+    return formatado.replace(new RegExp('^\\d{1,2}[\\).]?\\s*.+$'), '\n$1');
+  }
   // curl -X POST http://localhost:3000/questions/import -H "Content-Type: application/json" -d '{"filePath": "/path/to/SIMULADO+IFS+-+COM+GABARITO.docx"}'
 
   async importQuestions(
@@ -127,7 +133,7 @@ export class QuestionService {
     const dataBuffer = fs.readFileSync(pdfFilePath);
     const data = await pdfParse(dataBuffer);
 
-    const lines = data.text
+    const lines = (await this.melhorarFormatacao(data.text))
       .split('\n')
       .map((line) => line.trim())
       .filter((line) => line);
