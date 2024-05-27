@@ -9,6 +9,9 @@ export class Question extends Document {
   @Prop({ type: [String], required: true })
   options: string[];
 
+  @Prop({ required: false })
+  correctAnswerChecked: boolean;
+
   @Prop({ required: true })
   correctAnswer: string;
 

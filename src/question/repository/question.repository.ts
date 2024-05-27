@@ -8,7 +8,7 @@ import { QuestionDto } from '../model/question.dto';
 export class QuestionsRepository {
   constructor(
     @InjectModel(Question.name) private questionModel: Model<Question>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Question[]> {
     return await this.questionModel.find().lean().exec();
@@ -63,6 +63,20 @@ export class QuestionsRepository {
     const existingQuestion = await this.questionModel
       .findByIdAndUpdate(id, update, { new: true })
       .exec();
+
+    if (!existingQuestion) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
+    return existingQuestion;
+  }
+
+  async updateCorrectQuestion(id: string, dto: QuestionDto): Promise<Question> {
+    const existingQuestion = await this.questionModel.findById(id).exec();
+
+    if (existingQuestion) {
+      dto.correctAnswerChecked = true;
+      await this.updateQuestion(id, dto as any);
+    }
     if (!existingQuestion) {
       throw new NotFoundException(`Question with ID ${id} not found`);
     }

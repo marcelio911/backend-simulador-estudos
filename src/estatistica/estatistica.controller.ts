@@ -1,14 +1,18 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Put } from '@nestjs/common';
 import { EstatisticaService } from './estatistica.service';
 import { Estatistica } from './model/estatistica.schema';
+import { EstatisticaDto } from './model/estatistica.dto';
 
 @Controller('estatisticas')
 export class EstatisticaController {
   constructor(private readonly estatisticaService: EstatisticaService) {}
 
-  @Post()
-  create(@Body() createEstatisticaDto: any): Promise<Estatistica> {
-    return this.estatisticaService.create(createEstatisticaDto);
+  @Put(':id')
+  create(
+    @Param('id') id: string,
+    @Body() createEstatisticaDto: EstatisticaDto,
+  ): Promise<Estatistica> {
+    return this.estatisticaService.update(id, createEstatisticaDto);
   }
 
   @Get('user/:userId')

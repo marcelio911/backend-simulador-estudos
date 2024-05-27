@@ -5,6 +5,7 @@ export interface QuestionDto {
   questionText: string;
   options: string[];
   correctAnswer: string;
+  correctAnswerChecked: boolean;
   simulacaoId: string;
 }
 
@@ -14,6 +15,7 @@ export const adapterQuestionDto = (data: Question | any): QuestionDto => {
     questionText: data.questionText,
     options: data.options,
     correctAnswer: data.correctAnswer,
+    correctAnswerChecked: data.correctAnswerChecked,
     simulacaoId: data.simulacaoId,
   };
 };

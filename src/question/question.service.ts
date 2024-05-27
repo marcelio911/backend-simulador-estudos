@@ -8,7 +8,7 @@ import { QuestionDto } from './model/question.dto';
 
 @Injectable()
 export class QuestionService {
-  constructor(private questionsRepository: QuestionsRepository) {}
+  constructor(private questionsRepository: QuestionsRepository) { }
 
   async explain(data: any): Promise<string> {
     const { prompt } = data;
@@ -62,14 +62,21 @@ export class QuestionService {
     await this.questionsRepository.updateQuestion(id, questionData);
   }
 
+  async updateCorrectQuestion(
+    id: string,
+    questionData: QuestionDto,
+  ): Promise<void> {
+    await this.questionsRepository.updateCorrectQuestion(id, questionData);
+  }
+
   async deleteQuestion(id: string): Promise<void> {
     await this.questionsRepository.deleteQuestion(id);
   }
 
   async getAllRandomQuestions({ simulacaoId }): Promise<Question[]> {
-    const sliceArray = async (array: Question[]) => {
+    const sliceArray = async (array: Question[]): Promise<Question[]> => {
       let i = 0;
-      const reordernedArray = [];
+      const reordernedArray: Question[] = [];
       for await (const question of array) {
         i++;
         const order = Object.assign({}, question);
@@ -80,7 +87,9 @@ export class QuestionService {
       return reordernedArray;
     };
 
-    const randomizeQuestions = async (array: Question[]) => {
+    const randomizeQuestions = async (
+      array: Question[],
+    ): Promise<Question[]> => {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -88,7 +97,15 @@ export class QuestionService {
       return await sliceArray(array);
     };
 
-    return randomizeQuestions(await this.findBySimulacaoId({ simulacaoId }));
+    const filtered = await randomizeQuestions(
+      await this.findBySimulacaoId({ simulacaoId }),
+    );
+
+    const limited = filtered.filter(
+      (question) => !question.correctAnswerChecked,
+    );
+
+    return (await limited).splice(0, 25);
   }
 
   async findBySimulacaoId({ simulacaoId }): Promise<Question[]> {
@@ -156,12 +173,12 @@ export class QuestionService {
       questions.push(currentQuestion);
     }
     console.log('questions::: ', questions.length);
-    for (const question of questions) {
-      if (!question.correctAnswer) {
-        console.log('without correct answer:', question);
-      }
-      await this.createQuestion(question);
-    }
+    // for (const question of questions) {
+    //   if (!question.correctAnswer) {
+    //     console.log('without correct answer:', question);
+    //   }
+    //   await this.createQuestion(question);
+    // }
     await this.createAllQuestion(questions);
     const incorrectAnswers = questions.filter(
       (question) => !question.correctAnswer,

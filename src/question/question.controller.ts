@@ -52,6 +52,12 @@ export class QuestionController {
     this.questionService.updateQuestion(question._id, question);
   }
 
+  @HttpCode(203)
+  @Put('is-correct')
+  async updateCorrectQuestion(@Body() question: QuestionDto): Promise<void> {
+    this.questionService.updateCorrectQuestion(question._id, question);
+  }
+
   @Post('gpt-explain')
   async explain(@Body() prompt: string): Promise<string> {
     return this.questionService.explain(prompt);

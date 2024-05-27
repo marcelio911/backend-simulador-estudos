@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Estatistica } from './model/estatistica.schema';
+import { EstatisticaDto } from './model/estatistica.dto';
 
 @Injectable()
 export class EstatisticaService {
@@ -10,9 +11,16 @@ export class EstatisticaService {
     private EstatisticaModel: Model<Estatistica>,
   ) {}
 
-  async create(createEstatisticaDto: any): Promise<Estatistica> {
-    const createdEstatistica = new this.EstatisticaModel(createEstatisticaDto);
-    return createdEstatistica.save();
+  async update(
+    id: string,
+    createEstatisticaDto: Partial<EstatisticaDto>,
+  ): Promise<Estatistica> {
+    const createdEstatistica = await this.EstatisticaModel.findByIdAndUpdate(
+      id,
+      createEstatisticaDto,
+      { new: true },
+    );
+    return createdEstatistica;
   }
 
   async findByUserId(userId: string): Promise<Estatistica[]> {
