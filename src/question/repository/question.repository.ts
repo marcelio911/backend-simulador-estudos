@@ -2,15 +2,26 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Question } from '../model/question.schema';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { QuestionDto } from '../model/question.dto';
 
 @Injectable()
 export class QuestionsRepository {
   constructor(
     @InjectModel(Question.name) private questionModel: Model<Question>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Question[]> {
     return await this.questionModel.find().lean().exec();
+  }
+
+  adapterToQuestion(data: QuestionDto): Question {
+    const createQuestion = new this.questionModel({
+      questionText: data.questionText,
+      options: data.options,
+      correctAnswer: data.correctAnswer,
+      simulacaoId: data.simulacaoId,
+    });
+    return createQuestion;
   }
 
   async findBySimulacaoId(simulacaoId: string): Promise<Question[]> {
@@ -28,8 +39,8 @@ export class QuestionsRepository {
     }
   }
 
-  async createQuestion(createQuestionDto: Question): Promise<Question> {
-    const createdQuestion = new this.questionModel(createQuestionDto);
+  async createQuestion(createQuestionDto: QuestionDto): Promise<Question> {
+    const createdQuestion = this.adapterToQuestion(createQuestionDto);
     return createdQuestion.save();
   }
 
@@ -47,7 +58,7 @@ export class QuestionsRepository {
 
   async updateQuestion(
     id: string,
-    update: Partial<Question>,
+    update: Partial<QuestionDto>,
   ): Promise<Question> {
     const existingQuestion = await this.questionModel
       .findByIdAndUpdate(id, update, { new: true })

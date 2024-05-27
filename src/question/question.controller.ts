@@ -17,32 +17,44 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { Question } from './model/question.schema';
+import {
+  QuestionDto,
+  adapterArrayQuestionDto,
+  adapterQuestionDto,
+} from './model/question.dto';
+import { handlerImportFileErrorMessage } from './handlers';
 
 @Controller('questions')
 export class QuestionController {
-  constructor(private readonly questionService: QuestionService) { }
+  constructor(private readonly questionService: QuestionService) {}
 
   @Get('simulacao/:id')
-  findAll(@Param('id') simulacaoId: string): Promise<Question[]> {
-    return this.questionService.getAllRandomQuestions({ simulacaoId });
+  async findAll(@Param('id') simulacaoId: string): Promise<QuestionDto[]> {
+    return adapterArrayQuestionDto(
+      await this.questionService.getAllRandomQuestions({ simulacaoId }),
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Question> {
-    return this.questionService.getQuestionById(id);
+  async findOne(@Param('id') id: string): Promise<QuestionDto> {
+    return adapterQuestionDto(await this.questionService.getQuestionById(id));
   }
 
   @HttpCode(201)
   @Post()
-  async create(@Body() question: Question): Promise<void> {
-    this.questionService.createQuestion(question);
+  async create(@Body() questionDto: QuestionDto): Promise<void> {
+    this.questionService.createQuestion(questionDto);
   }
 
   @HttpCode(203)
   @Put()
-  async update(@Body() question: Question): Promise<void> {
-    this.questionService.updateQuestion(question.id, question);
+  async update(@Body() question: QuestionDto): Promise<void> {
+    this.questionService.updateQuestion(question._id, question);
+  }
+
+  @Post('gpt-explain')
+  async explain(@Body() prompt: string): Promise<string> {
+    return this.questionService.explain(prompt);
   }
 
   @Delete(':id')
@@ -81,8 +93,7 @@ export class QuestionController {
     try {
       await this.questionService.importQuestions(filePath, body.simulacaoId);
     } catch (error) {
-      console.error('Error importing questions:', error);
-      throw error;
+      throw handlerImportFileErrorMessage(error);
     } finally {
       // Remove o arquivo temporário após a importação
       fs.unlink(filePath, (err) => {

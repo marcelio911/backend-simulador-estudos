@@ -3,11 +3,50 @@ import { QuestionsRepository } from './repository/question.repository';
 import { Question } from './model/question.schema';
 import * as fs from 'fs';
 import * as pdfParse from 'pdf-parse';
+import axios from 'axios';
+import { QuestionDto } from './model/question.dto';
+
 @Injectable()
 export class QuestionService {
   constructor(private questionsRepository: QuestionsRepository) {}
 
-  async createQuestion(questionData: Question): Promise<void> {
+  async explain(data: any): Promise<string> {
+    const { prompt } = data;
+    try {
+      const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+      const config = {
+        method: 'post',
+        url: 'https://api.openai.com/v1/completions',
+        maxBodyLength: Infinity,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        data: {
+          model: 'gpt-3.5-turbo-instruct',
+          prompt: prompt,
+          temperature: 1,
+          max_tokens: 256,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+        },
+      };
+      // const url = 'https://api.openai.com/v1/completions';
+
+      const response = await axios.request(
+        // url,
+
+        config,
+      );
+      return response?.data?.choices.map((choice) => choice.text).join(',');
+    } catch (error) {
+      console.error('error:', error);
+      return error.message;
+    }
+  }
+
+  async createQuestion(questionData: QuestionDto): Promise<void> {
     await this.questionsRepository.createQuestion(questionData);
   }
 
@@ -19,7 +58,7 @@ export class QuestionService {
     return this.questionsRepository.getQuestionById(id);
   }
 
-  async updateQuestion(id: string, questionData: Question): Promise<void> {
+  async updateQuestion(id: string, questionData: QuestionDto): Promise<void> {
     await this.questionsRepository.updateQuestion(id, questionData);
   }
 
@@ -117,12 +156,12 @@ export class QuestionService {
       questions.push(currentQuestion);
     }
     console.log('questions::: ', questions.length);
-    // for (const question of questions) {
-    //   if (!question.correctAnswer) {
-    //     console.log('without correct answer:', question);
-    //   }
-    //   await this.createQuestion(question);
-    // }
+    for (const question of questions) {
+      if (!question.correctAnswer) {
+        console.log('without correct answer:', question);
+      }
+      await this.createQuestion(question);
+    }
     await this.createAllQuestion(questions);
     const incorrectAnswers = questions.filter(
       (question) => !question.correctAnswer,
