@@ -7,7 +7,20 @@ export interface QuestionDto {
   correctAnswer: string;
   correctAnswerChecked: boolean;
   simulacaoId: string;
+  attempt?: number;
 }
+
+export const adapterQuestion = (data: QuestionDto): Question => {
+  return {
+    _id: data._id,
+    questionText: data.questionText,
+    options: data.options,
+    correctAnswer: data.correctAnswer,
+    correctAnswerChecked: data.correctAnswerChecked,
+    simulacaoId: data.simulacaoId,
+    attempt: data.attempt ?? 0,
+  } as Question;
+};
 
 export const adapterQuestionDto = (data: Question | any): QuestionDto => {
   return {
@@ -17,6 +30,7 @@ export const adapterQuestionDto = (data: Question | any): QuestionDto => {
     correctAnswer: data.correctAnswer,
     correctAnswerChecked: data.correctAnswerChecked,
     simulacaoId: data.simulacaoId,
+    attempt: data.attempt,
   };
 };
 

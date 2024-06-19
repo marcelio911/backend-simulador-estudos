@@ -3,6 +3,7 @@ import { EstatisticaService } from './estatistica.service';
 import { EstatisticaController } from './estatistica.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Estatistica, EstatisticaSchema } from './model/estatistica.schema';
+import { EstatisticaRepository } from './repository/estatistica.repository';
 
 @Module({
   imports: [
@@ -10,7 +11,7 @@ import { Estatistica, EstatisticaSchema } from './model/estatistica.schema';
       { name: Estatistica.name, schema: EstatisticaSchema },
     ]),
   ],
-  providers: [EstatisticaService],
+  providers: [EstatisticaService, EstatisticaRepository],
   controllers: [EstatisticaController],
 })
 export class EstatisticaModule {}

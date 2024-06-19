@@ -54,8 +54,18 @@ export class QuestionController {
 
   @HttpCode(203)
   @Put('is-correct')
-  async updateCorrectQuestion(@Body() question: QuestionDto): Promise<void> {
-    this.questionService.updateCorrectQuestion(question._id, question);
+  async updateCorrectQuestion(
+    @Body() question: QuestionDto,
+  ): Promise<QuestionDto> {
+    return this.questionService.updateCorrectQuestion(question._id, question);
+  }
+
+  @HttpCode(203)
+  @Put('is-incorrect')
+  async updateInCorrectQuestion(
+    @Body() question: QuestionDto,
+  ): Promise<QuestionDto> {
+    return this.questionService.updateInCorrectQuestion(question._id, question);
   }
 
   @Post('gpt-explain')
@@ -97,7 +107,10 @@ export class QuestionController {
   ): Promise<void> {
     const filePath = file.path;
     try {
-      await this.questionService.importQuestions(filePath, body.simulacaoId);
+      await this.questionService.importQuestionsFromPdf(
+        filePath,
+        body.simulacaoId,
+      );
     } catch (error) {
       throw handlerImportFileErrorMessage(error);
     } finally {

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Question } from 'src/question/model/question.schema';
 
 @Schema()
 export class Estatistica extends Document {
@@ -8,16 +9,26 @@ export class Estatistica extends Document {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
+    ref: 'Simulacao',
+    required: true,
+  })
+  simulacaoId: string;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
     ref: 'Concurso',
     required: true,
   })
   concursoId: string;
 
-  @Prop({ type: Map, of: Number })
-  questionStats: Map<string, { attempts: number; correct: number }>;
+  @Prop()
+  simulacaoName: string;
+
+  @Prop({ type: Question })
+  question: Question;
 
   @Prop()
-  lastSimulacaoId: string;
+  dateTime: number;
 }
 
 export const EstatisticaSchema = SchemaFactory.createForClass(Estatistica);

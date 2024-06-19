@@ -8,7 +8,10 @@ import { QuestionDto } from './model/question.dto';
 
 @Injectable()
 export class QuestionService {
-  constructor(private questionsRepository: QuestionsRepository) {}
+  constructor(
+    private questionsRepository: QuestionsRepository,
+    private estaticasRepository: QuestionsRepository,
+  ) {}
 
   async explain(data: any): Promise<string> {
     const { prompt } = data;
@@ -65,8 +68,21 @@ export class QuestionService {
   async updateCorrectQuestion(
     id: string,
     questionData: QuestionDto,
-  ): Promise<void> {
-    await this.questionsRepository.updateCorrectQuestion(id, questionData);
+  ): Promise<QuestionDto> {
+    return (await this.questionsRepository.updateCorrectQuestion(
+      id,
+      questionData,
+    )) as QuestionDto;
+  }
+
+  async updateInCorrectQuestion(
+    id: string,
+    questionData: QuestionDto,
+  ): Promise<QuestionDto> {
+    return (await this.questionsRepository.updateInCorrectQuestion(
+      id,
+      questionData,
+    )) as QuestionDto;
   }
 
   async deleteQuestion(id: string): Promise<void> {
@@ -105,7 +121,7 @@ export class QuestionService {
       (question) => !question.correctAnswerChecked,
     );
 
-    return (await limited).splice(0, 25);
+    return await limited;
   }
 
   async findBySimulacaoId({ simulacaoId }): Promise<Question[]> {
@@ -116,15 +132,16 @@ export class QuestionService {
     return this.questionsRepository.deleteAllBySimulacaoId({ simulacaoId });
   }
 
+  regAE = new RegExp('([a-eA-E]\\))', 'g');
+
   async melhorarFormatacao(text: string): Promise<string> {
-    const regex = /([a-e]\))/g;
-    const formatado = text.replace(/\*\*/g, ' **').replace(regex, '\n$1');
+    const formatado = text.replace(/\*\*/g, ' **').replace(this.regAE, '\n$1');
 
     return formatado.replace(new RegExp('^\\d{1,2}[\\).]?\\s*.+$'), '\n$1');
   }
   // curl -X POST http://localhost:3000/questions/import -H "Content-Type: application/json" -d '{"filePath": "/path/to/SIMULADO+IFS+-+COM+GABARITO.docx"}'
 
-  async importQuestions(
+  async importQuestionsFromPdf(
     pdfFilePath: string,
     simulacaoId: string,
   ): Promise<void> {
@@ -155,7 +172,7 @@ export class QuestionService {
         };
         capturingQuestionText = true;
       } else if (capturingQuestionText) {
-        if (line.match(/^[a-e]\)/)) {
+        if (line.match(this.regAE)) {
           capturingQuestionText = false;
           const option = line.slice(3).trim();
           if (option.includes('<b>') || option.includes('**')) {
@@ -166,7 +183,7 @@ export class QuestionService {
         } else {
           currentQuestion.questionText += ` ${line}`;
         }
-      } else if (line.match(/^[a-e]\)/)) {
+      } else if (line.match(this.regAE)) {
         const option = line.slice(3).trim();
         if (option.includes('<b>') || option.includes('**')) {
           // Supondo que o texto em negrito será marcado assim no PDF

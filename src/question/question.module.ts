@@ -13,6 +13,7 @@ import { Question, QuestionSchema } from './model/question.schema';
     ]),
   ],
   providers: [QuestionService, QuestionsRepository],
+  exports: [QuestionService, QuestionsRepository],
   controllers: [QuestionController],
 })
 export class QuestionModule {}

@@ -20,19 +20,46 @@ export class QuestionsRepository {
       options: data.options,
       correctAnswer: data.correctAnswer,
       simulacaoId: data.simulacaoId,
+      attempt: 0,
     });
     return createQuestion;
   }
 
   async findBySimulacaoId(simulacaoId: string): Promise<Question[]> {
+    const limit = 25;
     try {
       const simulacaoObjectId = new Types.ObjectId(simulacaoId);
-      return await this.questionModel
+      // const size = await this.questionModel.find({
+      //   simulacaoId: simulacaoObjectId,
+      //   $or: [
+      //     { correctAnswerChecked: false },
+      //     { correctAnswerChecked: { $exists: false } },
+      //   ],
+      // });
+      // const totalItems = size.length;
+      // const totalPages = Math.ceil(totalItems / limit);
+
+      // // Randomize the page number
+      // const randomPage = Math.floor(Math.random() * totalPages) + 1;
+
+      // console.log(`Total items: ${totalItems}`);
+      // console.log(`Total pages: ${totalPages}`);
+      // console.log(`Random page: ${randomPage}`);
+
+      const results = await this.questionModel
         .find({
           simulacaoId: simulacaoObjectId,
+          $or: [
+            { correctAnswerChecked: false },
+            { correctAnswerChecked: { $exists: false } },
+          ],
         })
+        .skip(0)
+        .limit(limit)
         .lean()
         .exec();
+      // console.log(`results: ${results}`);
+      return results;
     } catch (error) {
       console.error('Error in findBySimulacaoId:', error);
       throw error;
@@ -75,7 +102,24 @@ export class QuestionsRepository {
 
     if (existingQuestion) {
       dto.correctAnswerChecked = true;
-      await this.updateQuestion(id, dto as any);
+      return await this.updateQuestion(id, dto as any);
+    }
+    if (!existingQuestion) {
+      throw new NotFoundException(`Question with ID ${id} not found`);
+    }
+    return existingQuestion;
+  }
+
+  async updateInCorrectQuestion(
+    id: string,
+    dto: QuestionDto,
+  ): Promise<Question> {
+    const existingQuestion = await this.questionModel.findById(id).exec();
+
+    if (existingQuestion) {
+      dto.correctAnswerChecked = false;
+      dto.attempt = (dto.attempt || 0) + 1;
+      return await this.updateQuestion(id, dto as any);
     }
     if (!existingQuestion) {
       throw new NotFoundException(`Question with ID ${id} not found`);

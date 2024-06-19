@@ -1,6 +1,11 @@
+import { QuestionDto } from 'src/question/model/question.dto';
+
 export interface EstatisticaDto {
   userId: string;
   concursoId: string;
-  questionStats: Map<string, { attempts: number; correct: number }>;
-  lastSimulacaoId: string;
+  simulacaoId: string;
+
+  simulacaoName: string;
+  question: QuestionDto;
+  dateTime: number;
 }

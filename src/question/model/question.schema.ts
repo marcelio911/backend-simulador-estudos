@@ -15,6 +15,9 @@ export class Question extends Document {
   @Prop({ required: true })
   correctAnswer: string;
 
+  @Prop({ required: true })
+  attempt: number;
+
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: 'Simulacao',
