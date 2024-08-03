@@ -15,7 +15,7 @@ export class Question extends Document {
   @Prop({ required: true })
   correctAnswer: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   attempt: number;
 
   @Prop({
