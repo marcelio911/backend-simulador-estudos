@@ -14,15 +14,18 @@ const config = process.env;
 const bootstrap = async (expressInstance?): Promise<void> => {
   const config = process.env;
 
-  console.log('config', config.ENV);
+  console.log('config', config);
+  const SSL = config.PROTOCOL;
   const httpsOptions = {
-    key: readFileSync('./src/cert/key.pem'),
-    cert: readFileSync('./src/cert/cert.pem'),
+    key: readFileSync(SSL ? '/etc/letsencrypt/live/backendsimulator.systentando.com/privkey.pem' : 'src/cert/key.pem'),
+    cert: readFileSync(SSL ? '/etc/letsencrypt/live/backendsimulator.systentando.com/fullchain.pem' : 'src/cert/cert.pem'),
   };
   const app =
     config.ENV === 'firebase'
       ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
-      : await NestFactory.create(AppModule, { httpsOptions } as any);
+      :
+      config.PROTOCOL === 'https' ? await NestFactory.create(AppModule, { httpsOptions } as any) :
+        await NestFactory.create(AppModule);
   app.enableCors();
   // BEGIN SWAGGER CONFIG ---------------------------------------
   const packageFile = resolve(__dirname, '../package.json');
