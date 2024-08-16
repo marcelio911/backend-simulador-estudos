@@ -8,7 +8,7 @@ export class SimulacaoService {
   constructor(
     readonly repository: SimulacaoRepository,
     readonly questionService: QuestionService,
-  ) {}
+  ) { }
 
   async create(data: Simulacao): Promise<Simulacao> {
     return await this.repository.create(data);
@@ -18,31 +18,34 @@ export class SimulacaoService {
     return await this.repository.update(id, data);
   }
 
-  async filterQuestions(results: Simulacao[]): Promise<Simulacao[]> {
+  async filterQuestions(results: Simulacao[], filter = false): Promise<Simulacao[]> {
     const simulacoesComQuestoes = [];
-    for (const simulacao of results) {
-      const questionsBySimulacao = await this.questionService.findBySimulacaoId(
-        { simulacaoId: simulacao._id },
-      );
-      const existe = questionsBySimulacao.some(
-        (question) => !question.correctAnswerChecked,
-      );
-      if (questionsBySimulacao.length > 0 && existe) {
-        simulacoesComQuestoes.push(simulacao);
+    if (filter) {
+      for (const simulacao of results) {
+        const questionsBySimulacao = await this.questionService.findBySimulacaoId(
+          { simulacaoId: simulacao._id },
+        );
+        const existe = questionsBySimulacao.some(
+          (question) => !question.correctAnswerChecked,
+        );
+        if (questionsBySimulacao.length > 0 && existe) {
+          simulacoesComQuestoes.push(simulacao);
+        }
       }
     }
-    return simulacoesComQuestoes;
+    return filter ? simulacoesComQuestoes : results;
   }
 
   async findByConcursoUserId(
     concursoId: string,
     userId: string,
+    filterOpenQuestions = false
   ): Promise<Simulacao[]> {
     const results = await this.repository.findByConcursoUserId(
       concursoId,
       userId,
     );
-    return await this.filterQuestions(results);
+    return await this.filterQuestions(results, filterOpenQuestions);
   }
 
   async findById(id: string): Promise<Simulacao> {

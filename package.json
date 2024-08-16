@@ -19,7 +19,7 @@
     "start": "yarn pre-start && nest start",
     "start:dev": "yarn pre-start && nest start --watch",
     "start:debug": "yarn pre-start && nest start --debug --watch",
-    "start:prod": "yarn pre-start && node functions/main",
+    "start:prod": "yarn pre-start && yarn build && node functions/main",
     "google:cloud:run": "pnpm install && pnpm run build && node functions/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",

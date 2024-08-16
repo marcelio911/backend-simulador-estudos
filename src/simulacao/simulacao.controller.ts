@@ -12,7 +12,7 @@ import { Simulacao } from './model/simulacao.schema';
 
 @Controller('simulacoes')
 export class SimulacaoController {
-  constructor(private readonly simulacaoService: SimulacaoService) {}
+  constructor(private readonly simulacaoService: SimulacaoService) { }
 
   @Post()
   create(@Body() createSimulacaoDto: any): Promise<Simulacao> {
@@ -30,11 +30,13 @@ export class SimulacaoController {
   }
 
   @Get('concurso/:concursoId/user/:userId')
+  @Get('concurso/:concursoId/user/:userId/filterOpenQuestions/:filterOpenQuestions')
   findByUserId(
     @Param('concursoId') concursoId: string,
     @Param('userId') userId: string,
+    @Param('filterOpenQuestions') filterOpenQuestions: boolean,
   ): Promise<Simulacao[]> {
-    return this.simulacaoService.findByConcursoUserId(concursoId, userId);
+    return this.simulacaoService.findByConcursoUserId(concursoId, userId, filterOpenQuestions);
   }
 
   @Get(':id')

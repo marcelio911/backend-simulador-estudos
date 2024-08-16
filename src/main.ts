@@ -14,18 +14,21 @@ const config = process.env;
 const bootstrap = async (expressInstance?): Promise<void> => {
   const config = process.env;
 
-  console.log('config', config);
-  const SSL = config.PROTOCOL;
+
+  const SSL = config.PROTOCOL == 'https';
   const httpsOptions = {
     key: readFileSync(SSL ? '/etc/letsencrypt/live/backendsimulator.systentando.com/privkey.pem' : 'src/cert/key.pem'),
     cert: readFileSync(SSL ? '/etc/letsencrypt/live/backendsimulator.systentando.com/fullchain.pem' : 'src/cert/cert.pem'),
   };
-  const app =
-    config.ENV === 'firebase'
-      ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
-      :
-      config.PROTOCOL === 'https' ? await NestFactory.create(AppModule, { httpsOptions } as any) :
-        await NestFactory.create(AppModule);
+  let app;
+  console.log('config', config.DEV);
+  if (config.ENV === 'firebase') {
+    // app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
+  } else if (config.PROTOCOL === 'https') {
+    app = await NestFactory.create(AppModule, { httpsOptions } as any)
+  } else {
+    app = await NestFactory.create(AppModule);
+  }
   app.enableCors();
   // BEGIN SWAGGER CONFIG ---------------------------------------
   const packageFile = resolve(__dirname, '../package.json');
@@ -39,7 +42,6 @@ const bootstrap = async (expressInstance?): Promise<void> => {
   SwaggerModule.setup('/swagger', app, document);
   //END SWAGGER CONFIG ------------------------------------
 
-  app.enableCors();
   if (config.ENV === 'firebase') {
     console.log('app.init');
     app.init();

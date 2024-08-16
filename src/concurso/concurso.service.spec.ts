@@ -7,7 +7,12 @@ describe('ConcursoService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ConcursoService],
-    }).compile();
+    }).overrideProvider(ConcursoService)
+      .useValue({
+        getConcursos: jest.fn(),
+      })
+      .compile();
+
 
     service = module.get<ConcursoService>(ConcursoService);
   });
