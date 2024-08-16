@@ -9,7 +9,6 @@ import { EstatisticaModule } from './estatistica/estatistica.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { PdfToWordOcrModule } from './pdf-to-word-ocr/pdf-to-word-ocr.module';
 // import configuration from './config/configuration';
 
 @Module({
@@ -40,7 +39,6 @@ import { PdfToWordOcrModule } from './pdf-to-word-ocr/pdf-to-word-ocr.module';
     EstatisticaModule,
     UserModule,
     AuthModule,
-    PdfToWordOcrModule,
   ],
   controllers: [AppController],
   providers: [AppService],
