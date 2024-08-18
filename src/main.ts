@@ -14,16 +14,18 @@ const config = process.env;
 const bootstrap = async (expressInstance?): Promise<void> => {
   const config = process.env;
 
+  console.log('protocol ::', config.PROTOCOL);
 
-  const SSL = config.PROTOCOL == 'https';
+  const LETS_ENCRYPT = (config.PROTOCOL === 'letsencrypt');
+  console.log('SSL ::', LETS_ENCRYPT);
+
   const httpsOptions = {
-    key: readFileSync(SSL ? '/etc/letsencrypt/live/backendsimulator.systentando.com/privkey.pem' : 'src/cert/key.pem'),
-    cert: readFileSync(SSL ? '/etc/letsencrypt/live/backendsimulator.systentando.com/fullchain.pem' : 'src/cert/cert.pem'),
+    key: readFileSync(LETS_ENCRYPT ? '/etc/letsencrypt/live/backendsimulator.systentando.com/privkey.pem' : 'src/cert/key.pem'),
+    cert: readFileSync(LETS_ENCRYPT ? '/etc/letsencrypt/live/backendsimulator.systentando.com/fullchain.pem' : 'src/cert/cert.pem'),
   };
   let app;
-  console.log('config', config.DEV);
   if (config.ENV === 'firebase') {
-    // app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
+    app = await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
   } else if (config.PROTOCOL === 'https') {
     app = await NestFactory.create(AppModule, { httpsOptions } as any)
   } else {
@@ -56,6 +58,7 @@ export const simulator = functions.https.onRequest(
     expressServer(request, response);
   },
 );
+console.log('config', config.ENV);
 
 if (config.ENV !== 'firebase') {
   bootstrap();

@@ -29,14 +29,14 @@ export class SimulacaoController {
     return this.simulacaoService.update(_id, createSimulacaoDto);
   }
 
-  @Get('concurso/:concursoId/user/:userId')
-  @Get('concurso/:concursoId/user/:userId/filterOpenQuestions/:filterOpenQuestions')
+  @Get('temaEspecifico/:temaEspecificoId/user/:userId')
+  @Get('temaEspecifico/:temaEspecificoId/user/:userId/filterOpenQuestions/:filterOpenQuestions')
   findByUserId(
-    @Param('concursoId') concursoId: string,
+    @Param('temaEspecificoId') temaEspecificoId: string,
     @Param('userId') userId: string,
     @Param('filterOpenQuestions') filterOpenQuestions: boolean,
   ): Promise<Simulacao[]> {
-    return this.simulacaoService.findByConcursoUserId(concursoId, userId, filterOpenQuestions);
+    return this.simulacaoService.findByTemaEspecificoUserId(temaEspecificoId, userId, filterOpenQuestions);
   }
 
   @Get(':id')

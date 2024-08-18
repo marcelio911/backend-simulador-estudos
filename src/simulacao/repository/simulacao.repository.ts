@@ -7,12 +7,12 @@ import { Simulacao } from '../model/simulacao.schema';
 export class SimulacaoRepository {
   constructor(
     @InjectModel(Simulacao.name) private simulacaoModel: Model<Simulacao>,
-  ) {}
+  ) { }
 
   async create(data: Simulacao): Promise<Simulacao> {
     const createSimulacaoDto = new this.simulacaoModel({
       userId: new Types.ObjectId(data.userId),
-      concursoId: new Types.ObjectId(data.concursoId),
+      temaEspecificoId: new Types.ObjectId(data.temaEspecificoId),
       name: data.name,
       questionIds:
         data.questionIds?.map((id: string) => new Types.ObjectId(id)) ?? [],
@@ -32,7 +32,7 @@ export class SimulacaoRepository {
     const updateSimulacaoDto = new this.simulacaoModel({
       _id: new Types.ObjectId(id),
       userId: new Types.ObjectId(data.userId),
-      concursoId: new Types.ObjectId(data.concursoId),
+      temaEspecificoId: new Types.ObjectId(data.temaEspecificoId),
       name: data.name,
       questionIds:
         data.questionIds?.map((id: string) => new Types.ObjectId(id)) ?? [],
@@ -50,21 +50,21 @@ export class SimulacaoRepository {
       .exec();
   }
 
-  async findByConcursoUserId(
-    concursoId: string,
+  async findByTemaEspecificoUserId(
+    temaEspecificoId: string,
     userId: string,
   ): Promise<Simulacao[]> {
     try {
       const userObjectId = new Types.ObjectId(userId);
-      const concursoObjectId = new Types.ObjectId(concursoId);
+      const temaEspecificoObjectId = new Types.ObjectId(temaEspecificoId);
       return await this.simulacaoModel
         .find({
           userId: userObjectId,
-          concursoId: concursoObjectId,
+          temaEspecificoId: temaEspecificoObjectId,
         })
         .exec();
     } catch (error) {
-      console.error('Error in findByConcursoUserId:', error);
+      console.error('Error in findByTemaEspecificoUserId:', error);
       throw error;
     }
   }

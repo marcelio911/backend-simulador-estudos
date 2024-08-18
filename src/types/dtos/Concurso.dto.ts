@@ -7,14 +7,6 @@ export class ConcursoDto {
 
   @IsNotEmpty()
   @IsString()
-  temasGerais: string;
-
-  @IsNotEmpty()
-  @IsString()
-  temasEspecificos: string;
-
-  @IsNotEmpty()
-  @IsString()
   local: string;
 
   @IsNotEmpty()

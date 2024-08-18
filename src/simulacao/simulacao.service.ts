@@ -36,13 +36,13 @@ export class SimulacaoService {
     return filter ? simulacoesComQuestoes : results;
   }
 
-  async findByConcursoUserId(
-    concursoId: string,
+  async findByTemaEspecificoUserId(
+    temaEspecificoId: string,
     userId: string,
     filterOpenQuestions = false
   ): Promise<Simulacao[]> {
-    const results = await this.repository.findByConcursoUserId(
-      concursoId,
+    const results = await this.repository.findByTemaEspecificoUserId(
+      temaEspecificoId,
       userId,
     );
     return await this.filterQuestions(results, filterOpenQuestions);

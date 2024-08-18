@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { TemaEspecifico } from '../temaespecifico/model/temaEspecifico.schema';
 
 @Schema()
 export class Concurso extends Document {
@@ -8,12 +9,6 @@ export class Concurso extends Document {
 
   @Prop({ required: true })
   descricao: string;
-
-  @Prop({ required: true })
-  temasGerais: string;
-
-  @Prop({ required: true })
-  temasEspecificos: string;
 
   @Prop({ required: true })
   dataProva: Date;

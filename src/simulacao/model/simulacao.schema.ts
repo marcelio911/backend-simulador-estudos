@@ -8,10 +8,10 @@ export class Simulacao extends Document {
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
-    ref: 'Concurso',
+    ref: 'TemaEspecifico',
     required: true,
   })
-  concursoId: string;
+  temaEspecificoId: string;
 
   @Prop({ type: [String], required: true })
   questionIds: string[];
